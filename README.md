@@ -14,6 +14,6 @@ by <a href="http://CryptoLions.io">CryptoLions</a> | <a href="https://github.com
 # Change Log  
   
 v0.0.1:  
-- Get account history with possibility filtering by actions also pagenatipon and ASC/DESC sorting  
+- Get account history with possibility filtering by actions also pagenation and ASC/DESC sorting  
 - support only GET requests  
 
