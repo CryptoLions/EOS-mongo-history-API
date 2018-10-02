@@ -4,9 +4,9 @@
 # API to get actions using EOS mongo plugin (similar to history plugin)
 #
 # Examples:
-# http://history.cryptolions.io/v1/get_actions/cryptolions1
-# http://history.cryptolions.io/v1/get_actions/cryptolions1/sethash
-# http://history.cryptolions.io/v1/get_actions/cryptolions1/sethash?limit=2&skip=1&sort=-1
+# http://history.cryptolions.io/v1/history/get_actions/cryptolions1
+# http://history.cryptolions.io/v1/history/get_actions/cryptolions1/sethash
+# http://history.cryptolions.io/v1/history/get_actions/cryptolions1/sethash?limit=2&skip=1&sort=-1
 #
 # Git Hub: https://github.com/CryptoLions/EOS-mongo-history-API
 #
