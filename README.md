@@ -7,5 +7,5 @@ by <a href="http://CryptoLions.io">CryptoLions</a> | <a href="https://github.com
   
 v0.0.1:  
 - Get account history with possibility filtering by actions also pagenation and ASC/DESC sorting  
-- support only GET requests  
+- support only GET && POST requests  
 
