@@ -13,7 +13,7 @@
 # Created by http://CryptoLions.io
 #
 ###############################################################################  */
-
+require('appmetrics-dash').monitor();
 const MongoClient 	= require('mongodb').MongoClient;
 const swaggerJSDoc 	= require('swagger-jsdoc');
 const bodyparser 	= require('body-parser');
