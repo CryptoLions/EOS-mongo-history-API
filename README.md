@@ -1,4 +1,4 @@
-# API Documentation http://history.cryptolions.io:3838/ 
+# API Documentation http://history.cryptolions.io
   
 by <a href="http://CryptoLions.io">CryptoLions</a> | <a href="https://github.com/CryptoLions/EOS-mongo-history-API">GitHub Sources </a>  
 
