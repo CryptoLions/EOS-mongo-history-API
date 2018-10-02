@@ -217,7 +217,7 @@ module.exports = (app, DB, swaggerSpec) => {
 		 if (key === "undefined"){
 		 	res.status(401).send("Wrong transactions ID!");
 		 } 
-		 let query = { trx_id: key };
+		 let query = { id: key };
 		 DB.collection("transactions_traces").findOne(query, (err, result) => {
 				if (err){
 					console.error(err);
@@ -232,7 +232,7 @@ module.exports = (app, DB, swaggerSpec) => {
 		 if (key === "undefined"){
 		 	res.status(401).send("Wrong transactions ID!");
 		 } 
-		 let query = { trx_id: key };
+		 let query = { id: key };
 		 DB.collection("transactions_traces").findOne(query, (err, result) => {
 				if (err){
 					console.error(err);
