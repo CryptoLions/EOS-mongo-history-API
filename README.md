@@ -1,11 +1,20 @@
-# API Documentation http://history.cryptolions.io
-  
-by <a href="http://CryptoLions.io">CryptoLions</a> | <a href="https://github.com/CryptoLions/EOS-mongo-history-API">GitHub Sources </a>  
+# API Documentation https://history.cryptolions.io
 
+## API url - https://history.cryptolions.io
+
+## indexing fields for get_actions (collection - action_traces)
+  	`act.account
+  	 act.name
+	 act.data.receiver 
+	 act.data.from 
+	 act.data.to
+	 act.data.name
+	 act.data.voter
+	 act.authorization.actor`
   
-# Change Log  
+## Change Log  
   
-v0.0.1:  
+v1.0.0:  
 - Get account history with possibility filtering by actions also pagenation and ASC/DESC sorting  
 - support only GET && POST requests  
 
