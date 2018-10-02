@@ -160,7 +160,7 @@ module.exports = (app, DB, swaggerSpec) => {
 					console.error(err);
 					return res.status(500).end();
 				};
-				res.json(result);
+				res.json({ actions: result });
 	    });
 	}
 
@@ -208,7 +208,7 @@ module.exports = (app, DB, swaggerSpec) => {
 					console.error(err);
 					return res.status(500).end();
 				};
-				res.json(result);
+				res.json({ actions: result });
 	    });
 	}
 
