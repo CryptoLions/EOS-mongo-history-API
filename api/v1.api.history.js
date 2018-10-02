@@ -14,7 +14,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *
 	 * /v1/history/get_actions:
 	 *   post:
-	 *     description: Get Account actions
+	 *     description: get_actions
 	 *     requestBody:
  	 *       content:
  	 *         application/json:
@@ -95,7 +95,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *
 	 * /v1/history/get_transaction:
 	 *   post:
-	 *     description: Get transaction
+	 *     description: get_transaction
 	 *     requestBody:
  	 *       content:
  	 *         application/json:
@@ -117,6 +117,62 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *       - application/json
 	 */
     app.get('/v1/history/get_transaction/:id', getTransaction);
+
+	/**
+	 * @swagger
+	 *
+	 * /v1/history/get_controlled_accounts:
+	 *   post:
+	 *     description: get_controlled_accounts
+	 *     requestBody:
+ 	 *       content:
+ 	 *         application/json:
+ 	 *           schema:
+ 	 *             type: object
+ 	 *             properties:
+ 	 *               controlling_account:
+ 	 *                 type: string
+	 */
+    app.post('/v1/history/get_controlled_accounts', getControlledAccountsPOST);
+
+	/**
+	 * @swagger
+	 *
+	 * /v1/history/get_controlled_accounts/${controlling_account}:
+	 *   get:
+	 *     description: Get controlled accounts
+	 *     produces:
+	 *       - application/json
+	 */
+    app.get('/v1/history/get_controlled_accounts/:controlling_account', getControlledAccounts);
+
+	/**
+	 * @swagger
+	 *
+	 * /v1/history/get_key_accounts:
+	 *   post:
+	 *     description: get_key_accounts
+	 *     requestBody:
+ 	 *       content:
+ 	 *         application/json:
+ 	 *           schema:
+ 	 *             type: object
+ 	 *             properties:
+ 	 *               public_key:
+ 	 *                 type: string
+	 */
+    app.post('/v1/history/get_key_accounts', getKeyAccountsPOST);
+
+	/**
+	 * @swagger
+	 *
+	 * /v1/history/get_key_accounts/${public_key}:
+	 *   get:
+	 *     description: Get key accounts
+	 *     produces:
+	 *       - application/json
+	 */
+    app.get('/v1/history/get_key_accounts/:public_key', getKeyAccounts);
 
 
 	// ========= Custom functions
@@ -215,7 +271,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	function getTransactionPOST(req, res){
 		 let key = String(req.body.id);
 		 if (key === "undefined"){
-		 	res.status(401).send("Wrong transactions ID!");
+		 	return res.status(401).send("Wrong transactions ID!");
 		 } 
 		 let query = { id: key };
 		 DB.collection("transaction_traces").findOne(query, (err, result) => {
@@ -230,10 +286,70 @@ module.exports = (app, DB, swaggerSpec) => {
 	function getTransaction(req, res){
 		 let key = String(req.params.id);
 		 if (key === "undefined"){
-		 	res.status(401).send("Wrong transactions ID!");
+		 	return res.status(401).send("Wrong transactions ID!");
 		 } 
 		 let query = { id: key };
 		 DB.collection("transaction_traces").findOne(query, (err, result) => {
+				if (err){
+					console.error(err);
+					return res.status(500).end();
+				};
+				res.json(result);
+	    });
+	}
+
+	function getControlledAccountsPOST(req, res){
+		 let key = String(req.body.controlling_account);
+		 if (key === "undefined"){
+		 	return res.status(401).send("Wrong transactions ID!");
+		 } 
+		 let query = { controlling_account: key };
+		 DB.collection("account_controls").find(query).toArray((err, result) => {
+				if (err){
+					console.error(err);
+					return res.status(500).end();
+				};
+				res.json(result);
+	    });
+	}
+
+	function getControlledAccounts(req, res){
+		 let key = String(req.params.controlling_account);
+		 if (key === "undefined"){
+		 	return res.status(401).send("Wrong transactions ID!");
+		 } 
+		 let query = { controlling_account: key };
+		 DB.collection("account_controls").find(query).toArray((err, result) => {
+				if (err){
+					console.error(err);
+					return res.status(500).end();
+				};
+				res.json(result);
+	    });
+	}
+
+	function getKeyAccountsPOST(req, res){
+		 let key = String(req.body.public_key);
+		 if (key === "undefined"){
+		 	return res.status(401).send("Wrong transactions ID!");
+		 } 
+		 let query = { public_key: key };
+		 DB.collection("pub_keys").find(query).toArray((err, result) => {
+				if (err){
+					console.error(err);
+					return res.status(500).end();
+				};
+				res.json(result);
+	    });
+	}
+
+	function getKeyAccounts(req, res){
+		 let key = String(req.params.public_key);
+		 if (key === "undefined"){
+		 	return res.status(401).send("Wrong transactions ID!");
+		 } 
+		 let query = { public_key: key };
+		 DB.collection("pub_keys").find(query).toArray((err, result) => {
 				if (err){
 					console.error(err);
 					return res.status(500).end();
