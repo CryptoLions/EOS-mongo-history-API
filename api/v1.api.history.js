@@ -12,6 +12,33 @@ module.exports = (app, DB, swaggerSpec) => {
 	/**
 	 * @swagger
 	 *
+	 * /v1/history/get_actions:
+	 *   post:
+	 *     description: Get Account actions
+	 *     requestBody:
+ 	 *       content:
+ 	 *         application/json:
+ 	 *           schema:
+ 	 *             type: object
+ 	 *             properties:
+ 	 *               pos:
+ 	 *                 type: number
+ 	 *                 default: -1
+ 	 *               offset:
+ 	 *                 type: number
+ 	 *                 default: 10
+ 	 *               account_name:
+ 	 *                 type: string
+ 	 *                 default: cryptolions1
+ 	 *               action_name:
+ 	 *                 type: string
+ 	 *                 default: all
+	 */
+    app.post('/v1/history/get_actions', getActionsPOST);
+
+	/**
+	 * @swagger
+	 *
 	 * /v1/history/get_actions/cryptolions1:
 	 *   get:
 	 *     description: Get Account actions
@@ -62,11 +89,34 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *         type: number
 	 */
     app.get('/v1/history/get_actions/:account/:action', getActions);
-	
 
+	/**
+	 * @swagger
+	 *
+	 * /v1/history/get_transaction:
+	 *   post:
+	 *     description: Get transaction
+	 *     requestBody:
+ 	 *       content:
+ 	 *         application/json:
+ 	 *           schema:
+ 	 *             type: object
+ 	 *             properties:
+ 	 *               id:
+ 	 *                 type: string
+	 */
+    app.post('/v1/history/get_transaction', getTransactionPOST);
 
-
-
+	/**
+	 * @swagger
+	 *
+	 * /v1/history/get_transaction/${id}:
+	 *   get:
+	 *     description: Get Transaction by id
+	 *     produces:
+	 *       - application/json
+	 */
+    app.get('/v1/history/get_transaction/:id', getTransaction);
 
 
 	// ========= Custom functions
@@ -87,7 +137,7 @@ module.exports = (app, DB, swaggerSpec) => {
 				{"act.data.voter": accountName},
 				{"act.authorization.actor": accountName}
 		]};
-	    if (action !== "undefined"){
+	    if (action !== "undefined" && action !== "all"){
 	    	query["act.name"] = action;
 	    }
 	
@@ -106,6 +156,84 @@ module.exports = (app, DB, swaggerSpec) => {
 	    }
 	    
 	    DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray((err, result) => {
+				if (err){
+					console.error(err);
+					return res.status(500).end();
+				};
+				res.json(result);
+	    });
+	}
+
+	function getActionsPOST(req, res){
+		// default values
+	    let skip = 0;
+	    let limit = 10;
+	    let sort = -1;
+	    let accountName = String(req.body.account_name);
+	    let action = String(req.body.action_name);
+	
+	    let query = { $or: [
+				{"act.account": accountName}, 
+				{"act.data.receiver": accountName}, 
+				{"act.data.from": accountName}, 
+				{"act.data.to": accountName},
+				{"act.data.name": accountName},
+				{"act.data.voter": accountName},
+				{"act.authorization.actor": accountName}
+		]};
+	    if (action !== "undefined"){
+	    	query["act.name"] = action;
+	    }
+
+	    let pos = Number(req.body.pos);
+	    let offset = Number(req.body.offset);
+	    if (!isNaN(pos) && !isNaN(offset)){
+	    	sort = (pos < 0) ? -1: 1;
+	    	limit = Math.abs(offset);
+	    	skip =  Math.abs(offset * ( pos * -1 - 1 ));
+	    }
+	
+	    if (limit > MAX_ELEMENTS){
+	    	return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
+	    }
+	    if (skip < 0 || limit < 0){
+	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
+	    }
+	    if (sort !== -1 && sort !== 1){
+	    	return res.status(401).send(`Sort param must be 1 or -1`);
+	    }
+	    
+	    DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray((err, result) => {
+				if (err){
+					console.error(err);
+					return res.status(500).end();
+				};
+				res.json(result);
+	    });
+	}
+
+	function getTransactionPOST(req, res){
+		 let key = String(req.body.id);
+		 if (key === "undefined"){
+		 	res.status(401).send("Wrong transactions ID!");
+		 } 
+		 let query = { trx_id: key };
+		 DB.collection("transactions").find(query).toArray((err, result) => {
+				if (err){
+					console.error(err);
+					return res.status(500).end();
+				};
+				res.json(result);
+	    });
+	}
+
+	function getTransaction(req, res){
+		 let key = String(req.params.id);
+		 if (key === "undefined"){
+		 	res.status(401).send("Wrong transactions ID!");
+		 } 
+		 let query = { trx_id: key };
+		 DB.collection("transactions").find(query).toArray((err, result) => {
 				if (err){
 					console.error(err);
 					return res.status(500).end();
