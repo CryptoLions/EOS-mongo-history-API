@@ -14,98 +14,46 @@
 #
 ###############################################################################  */
 
+const MongoClient 	= require('mongodb').MongoClient;
+const swaggerJSDoc 	= require('swagger-jsdoc');
+const bodyparser 	= require('body-parser');
+const CONFIG		= require('./config.js');
 
-//var mongo = require('mongodb');
-var MongoClient = require('mongodb').MongoClient;
+const swaggerSpec = swaggerJSDoc({
+  definition: {
+    info: {
+      title: 'EOS history API by Cryptolions',
+      version: '1.0.0',
+    },
+  },
+  apis: ['./api/v1.api.history.js'],
+});
 
-var express = require('express');
-var app = express();
-var http = require('http').Server(app);
-
-var CONFIG = require('./config.js');
-
+const express 		= require('express');
+const app 			= express();
+app.use(bodyparser.json({
+  strict: false,
+}));
 app.use('/', express.static(__dirname + '/html'));
 
 
-var MongoClient = require('mongodb').MongoClient;
-MongoClient.connect( CONFIG.mongoURL, function(err, db) {
-
-        console.log("Database Connected!");
-        var dbo = db.db(CONFIG.mongoDB);
-
-        app.get('/v1/get_actions/:account', function(req, res){
-
-	    var limit = 10;
-	    if (req.query.limit*1 > 0 )
-		limit = req.query.limit*1;
-
-	    var skip = 0;
-	    if (req.query.skip*1 > 0 )
-		skip = req.query.skip*1;
-	    if (req.query.skip*1 > 0 )
-		skip = req.query.skip*1;
-
-	    var sort = -1;
-	    if (req.query.sort*1 > 0 )
-		sort = 1;
-
-
-	    dbo.collection("action_traces").find( {$or: [
-				{"act.account": req.params.account}, 
-				{"act.data.receiver": req.params.account}, 
-				{"act.data.from": req.params.account}, 
-				{"act.data.to": req.params.account},
-				{"act.data.name": req.params.account},
-				{"act.data.voter": req.params.account},
-				{"act.authorization.actor": req.params.account}
-			]}).sort({"_id": sort}).skip(skip).limit(limit).toArray(function(err, result) {
-
-		if (err) throw err;
-
-		//console.log(result);
-		res.json(result);
-	    });
-	    
-        });
-
-
-        app.get('/v1/get_actions/:account/:action', function(req, res){
-	    var limit = 10;
-	    if (req.query.limit*1 > 0 )
-		limit = req.query.limit*1;
-
-	    var skip = 0;
-	    if (req.query.skip*1 > 0 )
-		skip = req.query.skip*1;
-	    if (req.query.skip*1 > 0 )
-		skip = req.query.skip*1;
-
-	    var sort = -1;
-	    if (req.query.sort*1 > 0 )
-		sort = 1;
-	    
-	    dbo.collection("action_traces").find( {"act.name": req.params.action,  $or: [
-				{"act.account": req.params.account}, 
-				{"act.data.receiver": req.params.account}, 
-				{"act.data.from": req.params.account}, 
-				{"act.data.to": req.params.account},
-				{"act.data.name": req.params.account},
-				{"act.data.voter": req.params.account},
-				{"act.authorization.actor": req.params.account}
-			]}).sort({"_id":sort}).skip(skip).limit(limit).toArray(function(err, result) {
-
-		if (err) throw err;
-
-		//console.log(result);
-		res.json(result);
-	    });
-	    
-        });
-
-
+process.on('uncaughtException', (err) => {
+    console.error(`======= UncaughtException API Server :  ${err}`);
 });
 
+MongoClient.connect( CONFIG.mongoURL, (err, db) => {
+		if (err){
+			return console.error("Database error !!!", err);
+		}
+        console.log("=== Database Connected!");
+        let dbo = db.db(CONFIG.mongoDB);
+		require('./api/v1.api.history')(app, dbo, swaggerSpec);        
+});
 
-http.listen(CONFIG.serverPort, function(){
-  console.log('listening on *:'+CONFIG.serverPort);
+const http 	= require('http').Server(app);
+http.listen(CONFIG.serverPort, () => {
+  	 console.log('=== Listening on port:', CONFIG.serverPort);
+});
+http.on('error', (err) => {
+	 console.error('=== Http server error', err);
 });
