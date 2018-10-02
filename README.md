@@ -2,7 +2,7 @@
 
 ## API url - https://history.cryptolions.io
 
-## add to your nodos config.ini
+## add to your nodeos config.ini
 	plugin = eosio::mongo_db_plugin
     mongodb-uri = mongodb://127.0.0.1:27017/EOS
     mongodb-filter-on = *
