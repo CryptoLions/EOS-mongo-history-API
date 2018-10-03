@@ -1,6 +1,7 @@
 'use strict';
 
 const MAX_ELEMENTS = 1000;
+const async = require('async');
 
 module.exports = (app, DB, swaggerSpec) => {
 
@@ -35,6 +36,28 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *         type: number
 	 */
     app.get('/v1/history/get_accounts', getAccounts);
+
+	/**
+	 * @swagger
+	 *
+	 * /v1/history/get_voters/cryptolions1:
+	 *   get:
+	 *     description: get_voters
+	 *     produces:
+	 *       - application/json
+	 *     parameters:
+	 *       - in: query
+	 *         name: skip
+	 *         description: Skip elements (default 0).
+	 *         required: false
+	 *         type: number
+	 *       - in: query
+	 *         name: limit
+	 *         description: Limit elements (default 100).
+	 *         required: false
+	 *         type: number
+	 */
+    app.get('/v1/history/get_voters/:account', getVoters);
 
 	/**
 	 * @swagger
@@ -413,7 +436,7 @@ module.exports = (app, DB, swaggerSpec) => {
 					return res.status(500).end();
 				};
 				if (counterAccounts){
-					DB.collection("accounts").countDocuments((err, accs) => {
+					DB.collection("accounts").count((err, accs) => {
 									if (err){
 										console.error(err);
 										return res.status(500).end();
@@ -423,6 +446,45 @@ module.exports = (app, DB, swaggerSpec) => {
 				} else {
 					res.json({ accounts: result });
 				}
+	    });
+	}
+
+	function getVoters(req, res){
+	    // default values
+	    let skip = 0;
+	    let limit = 100;
+	    let sort = -1;
+	    let accountName = String(req.params.account);
+	
+	    let query = { "act.name": "voteproducer",  "act.data.producers": { $in: [accountName] } };
+	
+	    skip = (isNaN(Number(req.query.skip))) ? skip : Number(req.query.skip);
+	    limit = (isNaN(Number(req.query.limit))) ? limit : Number(req.query.limit);
+	    sort = (isNaN(Number(req.query.sort))) ? sort : Number(req.query.sort);
+	
+	    if (limit > MAX_ELEMENTS){
+	    	return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
+	    }
+	    if (skip < 0 || limit < 0){
+	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
+	    }
+	    if (sort !== -1 && sort !== 1){
+	    	return res.status(401).send(`Sort param must be 1 or -1`);
+	    }
+
+	    async.parallel({
+	       votesCounter: (callback) => {
+	       		DB.collection("action_traces").find(query).count(callback);
+	       },
+           voters: (callback) => {
+           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
+           }
+	    }, (err, result) => {
+			if (err){
+					console.error(err);
+					return res.status(500).end();
+			}
+			res.json(result)
 	    });
 	}
 

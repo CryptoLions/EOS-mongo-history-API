@@ -41,7 +41,7 @@ process.on('uncaughtException', (err) => {
     console.error(`======= UncaughtException API Server :  ${err}`);
 });
 
-MongoClient.connect( CONFIG.mongoURL, (err, db) => {
+MongoClient.connect( CONFIG.mongoURL, { useNewUrlParser: true }, (err, db) => {
 		if (err){
 			return console.error("Database error !!!", err);
 		}
