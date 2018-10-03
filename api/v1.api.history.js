@@ -40,7 +40,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	/**
 	 * @swagger
 	 *
-	 * /v1/history/get_voters/cryptolions1?sort=1:
+	 * /v1/history/get_voters/cryptolions1:
 	 *   get:
 	 *     description: get_voters
 	 *     produces:
