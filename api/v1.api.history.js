@@ -8,6 +8,33 @@ module.exports = (app, DB, swaggerSpec) => {
 	  res.setHeader('Content-Type', 'application/json');
 	  res.send(swaggerSpec);
 	});
+	
+	/**
+	 * @swagger
+	 *
+	 * /v1/history/get_accounts?counter=on:
+	 *   get:
+	 *     description: get_accounts
+	 *     produces:
+	 *       - application/json
+	 *     parameters:
+	 *       - in: query
+	 *         name: counter
+	 *         description: Counter of all EOS Accounts (default off).
+	 *         required: false
+	 *         type: string
+	 *       - in: query
+	 *         name: skip
+	 *         description: Skip elements (default 0).
+	 *         required: false
+	 *         type: number
+	 *       - in: query
+	 *         name: limit
+	 *         description: Limit elements (default 10).
+	 *         required: false
+	 *         type: number
+	 */
+    app.get('/v1/history/get_accounts', getAccounts);
 
 	/**
 	 * @swagger
@@ -357,6 +384,48 @@ module.exports = (app, DB, swaggerSpec) => {
 				res.json(result);
 	    });
 	}
+
+	function getAccounts(req, res){
+	    let skip = 0;
+	    let limit = 10;
+	    let counterAccounts = false;
+	    let accountName = String(req.query.account);
+	
+	    let query = {};
+	    if (accountName !== "undefined"){
+	    	query.name = accountName;
+	    }
+	
+	    skip = (isNaN(Number(req.query.skip))) ? skip : Number(req.query.skip);
+	    limit = (isNaN(Number(req.query.limit))) ? limit : Number(req.query.limit);
+	    counterAccounts = (req.query.counter === "on") ? true : false;
+
+	    if (limit > MAX_ELEMENTS){
+	    	return res.status(401).send(`Max limit accounts per query = ${MAX_ELEMENTS}`);
+	    }
+	    if (skip < 0 || limit < 0){
+	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
+	    }
+
+		DB.collection("accounts").find(query).skip(skip).limit(limit).toArray((err, result) => {
+				if (err){
+					console.error(err);
+					return res.status(500).end();
+				};
+				if (counterAccounts){
+					DB.collection("accounts").countDocuments((err, accs) => {
+									if (err){
+										console.error(err);
+										return res.status(500).end();
+									};
+									res.json({ allEosAccounts: accs, accounts: result });
+					});
+				} else {
+					res.json({ accounts: result });
+				}
+	    });
+	}
+
 	//========= end Custom Functions
 }
 
