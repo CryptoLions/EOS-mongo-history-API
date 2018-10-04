@@ -19,6 +19,13 @@ const swaggerJSDoc 	= require('swagger-jsdoc');
 const bodyparser 	= require('body-parser');
 const CONFIG		= require('./config.js');
 
+const MONGO_OPTIONS = {
+    socketTimeoutMS: 30000,
+    keepAlive: true,
+    reconnectTries: 30000,
+    useNewUrlParser: true
+};
+
 const swaggerSpec = swaggerJSDoc({
   definition: {
     info: {
@@ -41,7 +48,7 @@ process.on('uncaughtException', (err) => {
     console.error(`======= UncaughtException API Server :  ${err}`);
 });
 
-MongoClient.connect( CONFIG.mongoURL, { useNewUrlParser: true }, (err, db) => {
+MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 		if (err){
 			return console.error("Database error !!!", err);
 		}
