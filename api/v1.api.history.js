@@ -116,6 +116,17 @@ module.exports = (app, DB, swaggerSpec) => {
 	/**
 	 * @swagger
 	 *
+	 * /v1/history/get_actions_unique/cryptolions1:
+	 *   get:
+	 *     description: get_actions_unique
+	 *     produces:
+	 *       - application/json
+	 */
+	app.get('/v1/history/get_actions_unique/:account', getActionsDistinct);
+
+	/**
+	 * @swagger
+	 *
 	 * /v1/history/get_actions/cryptolions1/sethash:
 	 *   get:
 	 *     description: Get Account actions by action name
@@ -267,6 +278,28 @@ module.exports = (app, DB, swaggerSpec) => {
 					return res.status(500).end();
 				};
 				res.json({ actions: result });
+	    });
+	}
+
+	function getActionsDistinct(req, res){
+	    // default values
+	    let accountName = String(req.params.account);
+	    let query = { $or: [
+				{"act.account": accountName}, 
+				{"act.data.receiver": accountName}, 
+				{"act.data.from": accountName}, 
+				{"act.data.to": accountName},
+				{"act.data.name": accountName},
+				{"act.data.voter": accountName},
+				{"act.authorization.actor": accountName}
+		]};
+	    
+	    DB.collection("action_traces").distinct("act.name", query, (err, result) => {
+				if (err){
+					console.error(err);
+					return res.status(500).end();
+				};
+				res.json(result);
 	    });
 	}
 
