@@ -273,7 +273,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	    }
 	    
 	    async.parallel({
-	       actionsCounter: (callback) => {
+	       actionsTotal: (callback) => {
 	       		DB.collection("action_traces").find(query).count(callback);
 	       },
            actions: (callback) => {
