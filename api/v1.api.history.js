@@ -272,12 +272,19 @@ module.exports = (app, DB, swaggerSpec) => {
 	    	return res.status(401).send(`Sort param must be 1 or -1`);
 	    }
 	    
-	    DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray((err, result) => {
-				if (err){
+	    async.parallel({
+	       actionsCounter: (callback) => {
+	       		DB.collection("action_traces").find(query).count(callback);
+	       },
+           actions: (callback) => {
+           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
+           }
+	    }, (err, result) => {
+			if (err){
 					console.error(err);
 					return res.status(500).end();
-				};
-				res.json({ actions: result });
+			}
+			res.json(result)
 	    });
 	}
 
