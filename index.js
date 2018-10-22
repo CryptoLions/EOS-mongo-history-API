@@ -20,7 +20,7 @@ const bodyparser 	= require('body-parser');
 const CONFIG		= require('./config.js');
 
 const MONGO_OPTIONS = {
-    socketTimeoutMS: 30000,
+    socketTimeoutMS: 60000,
     keepAlive: true,
     reconnectTries: 30000,
     useNewUrlParser: true
@@ -41,6 +41,11 @@ const app 			= express();
 app.use(bodyparser.json({
   strict: false,
 }));
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 app.use('/', express.static(__dirname + '/html'));
 
 
