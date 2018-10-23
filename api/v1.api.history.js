@@ -277,7 +277,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	       		DB.collection("action_traces").find(query).count(callback);
 	       },
            actions: (callback) => {
-           		DB.collection("action_traces").find(query).sort({"createdAt": sort}).skip(skip).limit(limit).toArray(callback);
+           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
            }
 	    }, (err, result) => {
 			if (err){
@@ -354,7 +354,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	       		DB.collection("action_traces").find(query).count(callback);
 	       },
            actions: (callback) => {
-           		DB.collection("action_traces").find(query).sort({"createdAt": sort}).skip(skip).limit(limit).toArray(callback);
+           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
            }
 	    }, (err, result) => {
 			if (err){
@@ -524,7 +524,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	       		DB.collection("action_traces").find(query).count(callback);
 	       },
            voters: (callback) => {
-           		DB.collection("action_traces").find(query).sort({"createdAt": sort}).skip(skip).limit(limit).toArray(callback);
+           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
            }
 	    }, (err, result) => {
 			if (err){
