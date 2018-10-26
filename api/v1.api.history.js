@@ -274,7 +274,8 @@ module.exports = (app, DB, swaggerSpec) => {
 	    
 	    async.parallel({
 	       actionsTotal: (callback) => {
-	       		DB.collection("action_traces").find(query).count(callback);
+	       		//DB.collection("action_traces").find(query).count(callback);
+	       		callback(null, "Temporary Unavailable");
 	       },
            actions: (callback) => {
            		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
@@ -351,7 +352,8 @@ module.exports = (app, DB, swaggerSpec) => {
 
 	    async.parallel({
 	       actionsTotal: (callback) => {
-	       		DB.collection("action_traces").find(query).count(callback);
+	       		//DB.collection("action_traces").find(query).count(callback);
+	       		callback(null, "Temporary Unavailable");
 	       },
            actions: (callback) => {
            		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
