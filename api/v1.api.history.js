@@ -255,7 +255,7 @@ module.exports = (app, DB, swaggerSpec) => {
 				{"act.authorization.actor": accountName}
 		]};
 	    if (action !== "undefined" && action !== "all"){
-	    	query["act.name"] = action;
+	    	query['$or'].push({"act.name": action});
 	    }
 	
 	    skip = (isNaN(Number(req.query.skip))) ? skip : Number(req.query.skip);
@@ -328,7 +328,7 @@ module.exports = (app, DB, swaggerSpec) => {
 				{"act.authorization.actor": accountName}
 		]};
 	    if (action !== "undefined"){
-	    	query["act.name"] = action;
+	    	query['$or'].push({"act.name": action});
 	    }
 
 	    let pos = Number(req.body.pos);
