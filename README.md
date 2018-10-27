@@ -25,7 +25,7 @@
 	act.data.voter
 	act.authorization.actor
   
-mongo EOS --eval 'db.action_traces.createIndex({"act.account": 1},{background: true})'  
+mongo EOS --eval 'db.action_traces.createIndex({"act.account": 1, "_id":-1},{background: true})'  
 
 mongo EOS --eval 'db.action_traces.createIndex({"act.name": 1},{background: true})'  
 
