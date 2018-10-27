@@ -25,7 +25,19 @@
 	act.data.voter
 	act.authorization.actor
   
-mongo EOS --eval 'db.action_traces.createIndex({"act.account": 1, "act.name": 1, "act.data.receiver": 1, "act.data.from": 1, "act.data.to": 1, "act.data.name": 1, "act.data.voter": 1},{background: true})'  
+mongo EOS --eval 'db.action_traces.createIndex({"act.account": 1},{background: true})'  
+
+mongo EOS --eval 'db.action_traces.createIndex({"act.name": 1},{background: true})'  
+
+mongo EOS --eval 'db.action_traces.createIndex({"act.data.receiver": 1},{background: true})'  
+
+mongo EOS --eval 'db.action_traces.createIndex({"act.data.from": 1},{background: true})'  
+
+mongo EOS --eval 'db.action_traces.createIndex({"act.data.to": 1},{background: true})'  
+
+mongo EOS --eval 'db.action_traces.createIndex({"act.data.name": 1},{background: true})'  
+
+mongo EOS --eval 'db.action_traces.createIndex({"act.data.voter": 1},{background: true})'  
 
 mongo EOS --eval 'db.action_traces.createIndex({"act.authorization.actor": 1},{background: true})'  
 
