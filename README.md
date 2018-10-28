@@ -16,8 +16,8 @@
     mongodb-store-action-traces = 1
     mongodb-block-start = 1
     mongodb-store-blocks = 0
-    mongodb-store-transactions = 0
-    mongodb-store-transaction-traces = 0
+    mongodb-store-transactions = 1
+    mongodb-store-transaction-traces = 1
     mongodb-store-action-traces = 1
     
 ### optional (to speed up syncing)
