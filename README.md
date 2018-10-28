@@ -5,15 +5,30 @@
 ## add to your nodeos config.ini
 	plugin = eosio::mongo_db_plugin
     mongodb-uri = mongodb://127.0.0.1:27017/EOS
-    mongodb-filter-on = *
+    mongodb-filter-on = :transfer:
     #mongodb-filter-out = spammer::
     mongodb-filter-out = eosio:onblock:
     mongodb-filter-out = gu2tembqgage::
     mongodb-filter-out = blocktwitter::
     mongodb-queue-size = 2048
-    abi-serializer-max-time-ms = 5000
+    mongodb-abi-cache-size = 2048
+    abi-serializer-max-time-ms = 10000
     mongodb-store-action-traces = 1
     mongodb-block-start = 1
+    mongodb-store-blocks = 0
+    mongodb-store-transactions = 0
+    mongodb-store-transaction-traces = 0
+    mongodb-store-action-traces = 1
+    
+### optional (to speed up syncing)
+    # no history plugin, deprecated
+    plugin = eosio::bnet_plugin
+    bnet-follow-irreversible = 0
+    bnet-no-trx = false
+    read-mode = read-only
+    validation-mode = light
+    wasm-runtime = wabt
+    chain-state-db-size-mb = 32000
 
 ## indexing fields for get_actions (collection - action_traces)
   	act.account
