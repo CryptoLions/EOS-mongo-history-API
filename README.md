@@ -16,14 +16,6 @@
     mongodb-block-start = 1
 
 ## indexing fields for get_actions (collection - action_traces)
-  	act.account
-  	act.name
-	act.data.receiver 
-	act.data.from 
-	act.data.to
-	act.data.name
-	act.data.voter
-	act.authorization.actor
 ```  
 mongo EOS --eval 'db.action_traces.createIndex({"act.account": 1, "_id":1},{background: true})'  
 mongo EOS --eval 'db.action_traces.createIndex({"act.name": 1, "_id":1},{background: true})'  
