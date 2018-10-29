@@ -12,8 +12,13 @@
     mongodb-filter-out = blocktwitter::
     mongodb-queue-size = 2048
     abi-serializer-max-time-ms = 5000
-    mongodb-store-action-traces = 1
     mongodb-block-start = 1
+    mongodb-store-block-states = false
+    mongodb-store-blocks = false
+    mongodb-store-transactions = false
+    mongodb-store-transaction-traces = true
+    mongodb-store-action-traces = true
+
 
 ## indexing fields for get_actions (collection - action_traces)
 ```  
