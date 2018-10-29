@@ -275,7 +275,19 @@ module.exports = (app, DB, swaggerSpec) => {
 	    async.parallel({
 	       actionsTotal: (callback) => {
 	       		//DB.collection("action_traces").find(query).count(callback);
-	       		callback(null, "Temporary Unavailable");
+	       		//callback(null, "Temporary Unavailable");
+	       		DB.collection("action_traces").aggregate([
+				   { $match: query },
+				   { $group: { _id: null, sum: { $sum: 1 } } } 
+				]).toArray((err, result) => {
+					if (err){
+						return callback(err);
+					}
+					if (!result || !result[0] || !result[0].sum){
+						return callback('counter error')
+					}
+					callback(null, result[0].sum);
+				});
 	       },
            actions: (callback) => {
            		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
@@ -286,28 +298,6 @@ module.exports = (app, DB, swaggerSpec) => {
 					return res.status(500).end();
 			}
 			res.json(result)
-	    });
-	}
-
-	function getActionsDistinct(req, res){
-	    // default values
-	    let accountName = String(req.params.account);
-	    let query = { $or: [
-				{"act.account": accountName}, 
-				{"act.data.receiver": accountName}, 
-				{"act.data.from": accountName}, 
-				{"act.data.to": accountName},
-				{"act.data.name": accountName},
-				{"act.data.voter": accountName},
-				{"act.authorization.actor": accountName}
-		]};
-	    
-	    DB.collection("action_traces").distinct("act.name", query, (err, result) => {
-				if (err){
-					console.error(err);
-					return res.status(500).end();
-				};
-				res.json(result);
 	    });
 	}
 
@@ -353,7 +343,19 @@ module.exports = (app, DB, swaggerSpec) => {
 	    async.parallel({
 	       actionsTotal: (callback) => {
 	       		//DB.collection("action_traces").find(query).count(callback);
-	       		callback(null, "Temporary Unavailable");
+	       		//callback(null, "Temporary Unavailable");
+	       		DB.collection("action_traces").aggregate([
+				   { $match: query },
+				   { $group: { _id: null, sum: { $sum: 1 } } } 
+				]).toArray((err, result) => {
+					if (err){
+						return callback(err);
+					}
+					if (!result || !result[0] || !result[0].sum){
+						return callback('counter error')
+					}
+					callback(null, result[0].sum);
+				});
 	       },
            actions: (callback) => {
            		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
@@ -364,6 +366,28 @@ module.exports = (app, DB, swaggerSpec) => {
 					return res.status(500).end();
 			}
 			res.json(result)
+	    });
+	}
+
+	function getActionsDistinct(req, res){
+	    // default values
+	    let accountName = String(req.params.account);
+	    let query = { $or: [
+				{"act.account": accountName}, 
+				{"act.data.receiver": accountName}, 
+				{"act.data.from": accountName}, 
+				{"act.data.to": accountName},
+				{"act.data.name": accountName},
+				{"act.data.voter": accountName},
+				{"act.authorization.actor": accountName}
+		]};
+	    
+	    DB.collection("action_traces").distinct("act.name", query, (err, result) => {
+				if (err){
+					console.error(err);
+					return res.status(500).end();
+				};
+				res.json(result);
 	    });
 	}
 
