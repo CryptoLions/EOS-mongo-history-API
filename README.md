@@ -3,7 +3,7 @@
 ## API url - https://history.cryptolions.io
 
 ## add to your nodeos config.ini
-	plugin = eosio::mongo_db_plugin
+    plugin = eosio::mongo_db_plugin
     mongodb-uri = mongodb://127.0.0.1:27017/EOS
     mongodb-filter-on = *
     #mongodb-filter-out = spammer::
@@ -18,6 +18,8 @@
     mongodb-store-transactions = false
     mongodb-store-transaction-traces = true
     mongodb-store-action-traces = true
+    
+    read-mode = read-only
 
 
 ## indexing fields for get_actions (collection - action_traces)
