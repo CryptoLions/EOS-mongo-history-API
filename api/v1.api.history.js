@@ -83,6 +83,9 @@ module.exports = (app, DB, swaggerSpec) => {
  	 *               action_name:
  	 *                 type: string
  	 *                 default: all
+ 	 *               counter:
+ 	 *                 type: number
+ 	 *                 default: 0
 	 */
     app.post('/v1/history/get_actions', getActionsPOST);
 
@@ -108,6 +111,11 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *       - in: query
 	 *         name: sort
 	 *         description: Sort elements default (-1).
+	 *         required: false
+	 *         type: number
+	 *       - in: query
+	 *         name: counter
+	 *         description: Enable counter if you need actionsTotal (?counter=1).
 	 *         required: false
 	 *         type: number
 	 */
@@ -244,6 +252,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	    let sort = -1;
 	    let accountName = String(req.params.account);
 	    let action = String(req.params.action);
+	    let counter = Number(req.query.counter);
 	
 	    let query = { $or: [
 				{"act.account": accountName}, 
@@ -271,11 +280,15 @@ module.exports = (app, DB, swaggerSpec) => {
 	    if (sort !== -1 && sort !== 1){
 	    	return res.status(401).send(`Sort param must be 1 or -1`);
 	    }
-	    
-	    async.parallel({
-	       actionsTotal: (callback) => {
-	       		//DB.collection("action_traces").find(query).count(callback);
-	       		//callback(null, "Temporary Unavailable");
+
+	    let parallelObject = {
+		   actions: (callback) => {
+           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
+           }
+	    };
+
+	    if (counter === 1){
+	    	parallelObject["actionsTotal"] = (callback) => {
 	       		DB.collection("action_traces").aggregate([
 				   { $match: query },
 				   { $group: { _id: null, sum: { $sum: 1 } } } 
@@ -288,11 +301,10 @@ module.exports = (app, DB, swaggerSpec) => {
 					}
 					callback(null, result[0].sum);
 				});
-	       },
-           actions: (callback) => {
-           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
-           }
-	    }, (err, result) => {
+	       }
+	    }
+	    
+	    async.parallel(parallelObject, (err, result) => {
 			if (err){
 					console.error(err);
 					return res.status(500).end();
@@ -308,6 +320,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	    let sort = -1;
 	    let accountName = String(req.body.account_name);
 	    let action = String(req.body.action_name);
+	    let counter = Number(req.body.counter);
 	
 	    let query = { $or: [
 				{"act.account": accountName}, 
@@ -340,10 +353,14 @@ module.exports = (app, DB, swaggerSpec) => {
 	    	return res.status(401).send(`Sort param must be 1 or -1`);
 	    }
 
-	    async.parallel({
-	       actionsTotal: (callback) => {
-	       		//DB.collection("action_traces").find(query).count(callback);
-	       		//callback(null, "Temporary Unavailable");
+	    let parallelObject = {
+		   actions: (callback) => {
+           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
+           }
+	    };
+
+	    if (counter === 1){
+	    	parallelObject["actionsTotal"] = (callback) => {
 	       		DB.collection("action_traces").aggregate([
 				   { $match: query },
 				   { $group: { _id: null, sum: { $sum: 1 } } } 
@@ -356,11 +373,10 @@ module.exports = (app, DB, swaggerSpec) => {
 					}
 					callback(null, result[0].sum);
 				});
-	       },
-           actions: (callback) => {
-           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
-           }
-	    }, (err, result) => {
+	       }
+	    }
+	    
+	    async.parallel(parallelObject, (err, result) => {
 			if (err){
 					console.error(err);
 					return res.status(500).end();
