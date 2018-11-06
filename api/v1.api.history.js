@@ -1,7 +1,9 @@
 'use strict';
 
-const MAX_ELEMENTS = 1000;
-const async = require('async');
+const MAX_ELEMENTS 	= 1000;
+const async 		= require('async');
+const request 		= require('request');
+const config 		= require('../config');
 
 module.exports = (app, DB, swaggerSpec) => {
 
@@ -242,6 +244,19 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *       - application/json
 	 */
     app.get('/v1/history/get_key_accounts/:public_key', getKeyAccounts);
+
+    /**
+	 * @swagger
+	 *
+	 * /v1/chain/${chain_rpc_method_name}:
+	 *   post:
+	 *     description: Proxy for chain RPC endpoints
+	 *     produces:
+	 *       - application/json
+	 */
+    app.post('/v1/chain/*', (req, res) => {
+    	request.post({ url: `${config.chainUrl}${req.originalUrl}`, json: req.body }).pipe(res);
+    });
 
 
 	// ========= Custom functions
