@@ -258,6 +258,9 @@ module.exports = (app, DB, swaggerSpec) => {
     	request.post({ url: `${config.chainUrl}${req.originalUrl}`, json: req.body }).pipe(res);
     });
 
+    app.get('/v1/chain/get_info', (req, res) => {
+    	request.get(`${config.chainUrl}${req.originalUrl}`).pipe(res);
+    });
 
 	// ========= Custom functions
 	function getActions(req, res){
