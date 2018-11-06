@@ -44,5 +44,11 @@ mongo EOS --eval 'db.accounts.createIndex({"name": 1},{background: true})'
   
 v1.0.0:  
 - Get account history with possibility filtering by actions also pagenation and ASC/DESC sorting  
-- support only GET && POST requests  
+- support only GET && POST requests 
+- get all accounts account 
+- get voters for producer 
+
+v1.0.1:  
+- Proxy all chain RPC endpoints (POST requests)
+
 
