@@ -37,10 +37,28 @@ const swaggerSpec = swaggerJSDoc({
 });
 
 const express 		= require('express');
-const app 			= express();
-app.use(bodyparser.json({
-  strict: false,
-}));
+const app 			  = express();
+
+// parse requests from eosjs (v16.0.0 - 16.0.9)
+app.use((req, res, next) => {
+      if (req.method !== 'POST' || req.headers['content-type'] === 'application/json'){
+          return next();
+      }
+      let body = '';
+      req.on('data', chunk => {
+          body += chunk.toString();
+      });
+      req.on('end', () => {
+          try{
+            req.body = JSON.parse(body);
+          } catch(e){
+            console.error('JSON POST request parse error - ', e);
+          }
+          next();
+      });
+});
+app.use(bodyparser.json());
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
