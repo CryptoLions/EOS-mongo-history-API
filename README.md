@@ -51,4 +51,6 @@ v1.0.0:
 v1.0.1:  
 - Proxy all chain RPC endpoints (POST requests)
 
+v1.0.2:
+- support of all requests from eosjs
 
