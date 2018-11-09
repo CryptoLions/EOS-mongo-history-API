@@ -15,9 +15,10 @@
 ###############################################################################  */
 require('appmetrics-dash').monitor();
 const MongoClient 	= require('mongodb').MongoClient;
+const mongoose      = require('mongoose');
 const swaggerJSDoc 	= require('swagger-jsdoc');
-const bodyparser 	= require('body-parser');
-const CONFIG		= require('./config.js');
+const bodyparser 	  = require('body-parser');
+const config		    = require('./config.js');
 
 const MONGO_OPTIONS = {
     socketTimeoutMS: 60000,
@@ -71,18 +72,29 @@ process.on('uncaughtException', (err) => {
     console.error(`======= UncaughtException API Server :  ${err}`);
 });
 
-MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
+mongoose.Promise = global.Promise;
+
+const mongoMain = mongoose.createConnection(config.mongoURL, MONGO_OPTIONS,
+ (err) => {
+    if (err){
+      console.error(err);
+      process.exit(1);
+    }
+    console.log('[Connected to Mongo EOS] : 27017');
+});
+
+MongoClient.connect( config.mongoURL, MONGO_OPTIONS, (err, db) => {
 		if (err){
 			return console.error("Database error !!!", err);
 		}
-        console.log("=== Database Connected!");
-        let dbo = db.db(CONFIG.mongoDB);
-		require('./api/v1.api.history')(app, dbo, swaggerSpec);        
+    console.log("=== Database Connected!");
+    let dbo = db.db(config.mongoDB);
+		require('./api/v1.api.history')(app, dbo, swaggerSpec, mongoMain);        
 });
 
 const http 	= require('http').Server(app);
-http.listen(CONFIG.serverPort, () => {
-  	 console.log('=== Listening on port:', CONFIG.serverPort);
+http.listen(config.serverPort, () => {
+  	 console.log('=== Listening on port:', config.serverPort);
 });
 http.on('error', (err) => {
 	 console.error('=== Http server error', err);

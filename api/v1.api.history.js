@@ -5,7 +5,9 @@ const async 		= require('async');
 const request 		= require('request');
 const config 		= require('../config');
 
-module.exports = (app, DB, swaggerSpec) => {
+module.exports = (app, DB, swaggerSpec, mongoMain) => {
+
+	const ACTION_TRACES = require('../models/actions.model')(mongoMain);
 
 	app.get('/api-docs.json', (req, res) => {
 	  res.setHeader('Content-Type', 'application/json');
@@ -307,7 +309,7 @@ module.exports = (app, DB, swaggerSpec) => {
 
 	    if (counter === 1){
 	    	parallelObject["actionsTotal"] = (callback) => {
-	       		DB.collection("action_traces").aggregate([
+	       		/*DB.collection("action_traces").aggregate([
 				   { $match: query },
 				   { $group: { _id: null, sum: { $sum: 1 } } } 
 				]).toArray((err, result) => {
@@ -318,7 +320,8 @@ module.exports = (app, DB, swaggerSpec) => {
 						return callback('counter error')
 					}
 					callback(null, result[0].sum);
-				});
+				});*/
+				ACTION_TRACES.find(query).countDocuments(callback);
 	       }
 	    }
 	    
