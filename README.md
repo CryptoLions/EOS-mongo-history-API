@@ -27,21 +27,21 @@
 Use build_indexes.sh script to create indexes (the best is to run on start syncronisation)  
 
 ```  
-mongo EOS --eval 'db.action_traces.createIndex({"act.account": 1, "_id":1},{background: true})'  
-mongo EOS --eval 'db.action_traces.createIndex({"act.name": 1, "_id":1},{background: true})'  
-mongo EOS --eval 'db.action_traces.createIndex({"act.data.receiver": 1, "_id":1},{background: true})'  
-mongo EOS --eval 'db.action_traces.createIndex({"act.data.from": 1, "_id":1},{background: true})'  
-mongo EOS --eval 'db.action_traces.createIndex({"act.data.to": 1, "_id":1},{background: true})'  
-mongo EOS --eval 'db.action_traces.createIndex({"act.data.name": 1, "_id":1},{background: true})'  
-mongo EOS --eval 'db.action_traces.createIndex({"act.data.voter": 1, "_id":1},{background: true})'  
-mongo EOS --eval 'db.action_traces.createIndex({"act.authorization.actor": 1, "_id":1},{background: true})'  
+mongo EOS --eval 'db.action_traces.createIndex({"act.account": 1, "_id":1},{background: true, sparse: true})'  
+mongo EOS --eval 'db.action_traces.createIndex({"act.name": 1, "_id":1},{background: true, sparse: true})'  
+mongo EOS --eval 'db.action_traces.createIndex({"act.data.receiver": 1, "_id":1},{background: true, sparse: true})'  
+mongo EOS --eval 'db.action_traces.createIndex({"act.data.from": 1, "_id":1},{background: true, sparse: true})'  
+mongo EOS --eval 'db.action_traces.createIndex({"act.data.to": 1, "_id":1},{background: true, sparse: true})'  
+mongo EOS --eval 'db.action_traces.createIndex({"act.data.name": 1, "_id":1},{background: true, sparse: true})'  
+mongo EOS --eval 'db.action_traces.createIndex({"act.data.voter": 1, "_id":1},{background: true, sparse: true})'  
+mongo EOS --eval 'db.action_traces.createIndex({"act.authorization.actor": 1, "_id":1},{background: true, sparse: true})'  
 ```
 ## Other Indexes  
 ```
-mongo EOS --eval 'db.transaction_traces.createIndex({"id": 1},{background: true})'  
-mongo EOS --eval 'db.account_controls.createIndex({"controlling_account": 1},{background: true})'  
-mongo EOS --eval 'db.pub_keys.createIndex({"public_key": 1},{background: true})'  
-mongo EOS --eval 'db.accounts.createIndex({"name": 1},{background: true})'  
+mongo EOS --eval 'db.transaction_traces.createIndex({"id": 1},{background: true, sparse: true})'  
+mongo EOS --eval 'db.account_controls.createIndex({"controlling_account": 1},{background: true, sparse: true})'  
+mongo EOS --eval 'db.pub_keys.createIndex({"public_key": 1},{background: true, sparse: true})'  
+mongo EOS --eval 'db.accounts.createIndex({"name": 1},{background: true, sparse: true})'  
 ```  
 ## Change Log  
   
