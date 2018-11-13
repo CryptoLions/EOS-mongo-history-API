@@ -307,7 +307,7 @@ module.exports = (app, DB, swaggerSpec) => {
 
 	    if (counter === 1){
 	    	parallelObject["actionsTotal"] = (callback) => {
-	       		DB.collection("action_traces").aggregate([
+	       		/*DB.collection("action_traces").aggregate([
 				   { $match: query },
 				   { $group: { _id: null, sum: { $sum: 1 } } } 
 				]).toArray((err, result) => {
@@ -318,7 +318,8 @@ module.exports = (app, DB, swaggerSpec) => {
 						return callback('counter error')
 					}
 					callback(null, result[0].sum);
-				});
+				});*/
+				callback(null, 'Under construction');
 	       }
 	    }
 	    
@@ -379,7 +380,7 @@ module.exports = (app, DB, swaggerSpec) => {
 
 	    if (counter === 1){
 	    	parallelObject["actionsTotal"] = (callback) => {
-	       		DB.collection("action_traces").aggregate([
+	       		/*DB.collection("action_traces").aggregate([
 				   { $match: query },
 				   { $group: { _id: null, sum: { $sum: 1 } } } 
 				]).toArray((err, result) => {
@@ -390,7 +391,8 @@ module.exports = (app, DB, swaggerSpec) => {
 						return callback('counter error')
 					}
 					callback(null, result[0].sum);
-				});
+				});*/
+				callback(null, 'Under construction');
 	       }
 	    }
 	    
