@@ -359,7 +359,8 @@ module.exports = (app, DB, swaggerSpec) => {
 	    if (!isNaN(pos) && !isNaN(offset)){
 	    	sort = (pos < 0) ? -1: 1;
 	    	limit = Math.abs(offset);
-	    	skip =  (pos < 0) ? Math.abs(offset * ( pos * -1 - 1 )) : Math.abs(offset * ( pos - 1 ));
+	    	//skip =  (pos < 0) ? Math.abs(offset * ( pos * -1 - 1 )) : Math.abs(offset * ( pos - 1 ));
+	    	skip = (pos < 0) ? Math.abs(pos + 1) : Math.abs(pos - 1);
 	    }
 	
 	    if (limit > MAX_ELEMENTS){
