@@ -22,9 +22,6 @@ mongo EOS --eval 'db.action_traces.createIndex({"act.data.voter": 1, "_id":1},{b
 echo "IDX 8/12: action_traces: act.authorization.actor + _id"
 mongo EOS --eval 'db.action_traces.createIndex({"act.authorization.actor": 1, "_id":1},{background: true, sparse: true})'
 
-echo "IDX 9/12: transaction_traces: id"
-mongo EOS --eval 'db.transaction_traces.createIndex({"id": 1},{background: true, sparse: true})'  
-
 echo "IDX 10/12: account_controls: controlling_account"
 mongo EOS --eval 'db.account_controls.createIndex({"controlling_account": 1},{background: true, sparse: true})'  
 
