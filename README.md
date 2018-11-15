@@ -38,7 +38,6 @@ mongo EOS --eval 'db.action_traces.createIndex({"act.authorization.actor": 1, "_
 ```
 ## Other Indexes  
 ```
-mongo EOS --eval 'db.transaction_traces.createIndex({"id": 1},{background: true, sparse: true})'  
 mongo EOS --eval 'db.account_controls.createIndex({"controlling_account": 1},{background: true, sparse: true})'  
 mongo EOS --eval 'db.pub_keys.createIndex({"public_key": 1},{background: true, sparse: true})'  
 mongo EOS --eval 'db.accounts.createIndex({"name": 1},{background: true, sparse: true})'  
