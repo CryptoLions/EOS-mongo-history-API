@@ -122,8 +122,7 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 								}
 								console.log('Account -', elem.name, ' Actions -', result[0].sum);
 								if (result[0].sum > MAX_ACTIONS){
-									let query = { name: elem.name, actions: result[0].sum };
-									DBO.collection("smart_cache").update(query, query, { upsert: true }, cb);
+									DBO.collection("smart_cache").update({ name: elem.name }, { name: elem.name, actions: result[0].sum }, { upsert: true }, cb);
 									return;
 								}
 								cb();
