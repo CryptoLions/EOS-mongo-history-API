@@ -4,7 +4,6 @@
 const MongoClient 	= require('mongodb').MongoClient;
 const CONFIG		= require('../config.js');
 const async 		= require('async');
-const fs 			= require('fs');
 
 const MONGO_OPTIONS = {
     socketTimeoutMS: 10000,
@@ -27,7 +26,27 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
         let DBO = db.db(CONFIG.mongoDB);
 		
 		// Start cache daemon ===== 
-		getAccounts(DBO);       
+		getAccounts(DBO); 
+
+		// clear slow operations
+		clearSlowOperations(); 
+
+		function clearSlowOperations(){
+			DBO.admin().command({ currentOp: 1, microsecs_running: { $gte: 10000 }, "command.aggregate": { $exists: true } }, (err, result) => {
+				if (err){
+					console.error(err);
+					return setTimeout(clearSlowOperations, 10000);
+				}
+				console.log(result);
+				if(result && result.inprog && result.inprog.length){
+					result.inprog.forEach((elem) => {
+							console.log('Kill operation: ', elem.opid, elem.command.aggregate);
+							DBO.admin().command({ killOp: 1, op: elem.opid });
+					});
+				}
+				setTimeout(clearSlowOperations, 10000);
+			});
+		}   
 
 		// Cache logic =====
 		let cursor = 0;
@@ -86,7 +105,8 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 								if (err){
 									if(err.name === 'MongoNetworkError'){
 										console.log('MongoNetworkError ---- ', elem.name);
-										fs.appendFile(__dirname + '/accounts.thebiggest.txt', elem.name + '\n', 'utf8', cb);
+										let query = { name: elem.name };
+										DBO.collection("smart_cache").updateOne(query, query, { upsert: true });
 										return;
 									}
 									return cb();
@@ -97,7 +117,8 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 								}
 								console.log('Account -', elem.name, ' Actions -', result[0].sum);
 								if (result[0].sum > MAX_ACTIONS){
-									fs.appendFile(__dirname + '/accounts.big.txt', `${elem.name} = ${result[0].sum}\n`, 'utf8', cb);
+									let query = { name: elem.name, actions: result[0].sum  };
+									DBO.collection("smart_cache").updateOne(query, query, { upsert: true });
 									return;
 								}
 								cb();
