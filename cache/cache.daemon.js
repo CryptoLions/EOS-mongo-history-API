@@ -32,7 +32,7 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 		clearSlowOperations(); 
 
 		function clearSlowOperations(){
-			DBO.admin().command({ currentOp: 1, microsecs_running: { $gte: 10000 }, "command.aggregate": { $exists: true } }, (err, result) => {
+			DBO.admin().command({ currentOp: 1, microsecs_running: { $gte: 15000 }, "command.aggregate": { $exists: true } }, (err, result) => {
 				if (err){
 					console.error(err);
 					return setTimeout(clearSlowOperations, 10000);
@@ -50,42 +50,47 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 
 		// Cache logic =====
 		let cursor = 0;
+		let counter = 0;
+
 		function getAccounts(){
 				async.waterfall([
 					(callback) => {
 						DBO.collection("accounts").count(callback);
 					},
 					(accounts, callback) => {
-						console.log(accounts);
-						if (cursor > accounts){
-							return callback(null, 'FINISH');
-						}
+						console.log('All Accounts -', accounts);
 						let skip = (cursor === 0) ? 0 : cursor;
-					   	let elements = Array.from({length: MAX_ELEMS }, (v, k) => cursor += 1);
+					   	let elements = Array.from({length: MAX_ELEMS }, (v, k) => k);
+
+					   	cursor += MAX_ELEMS;
 					   	
 					   	console.log('skip =', skip, 'limit =', MAX_ELEMS);
 					   	DBO.collection("accounts").find({}).skip(skip).limit(MAX_ELEMS).toArray((err, accountsArr) => {
 							if (err){
 								return callback(err);
 							};
+							if (!accountsArr || !accountsArr.length){
+								return callback(null, 'FINISH');
+							}
 							accountActionCount(accountsArr, callback);
 			    		}); 
 					}
 				], (err, result) => {
 					if (err){
 						console.error('getAccounts callback error', err);
-						return getAccounts();
+						getAccounts();
+						return;
 						//process.exit(1);
 					}
 					if (result === 'FINISH'){
-						console.log(`Scanned ${cursor} accounts :)`);
+						console.log(`Scanned ${counter} accounts :)`);
 						process.exit();
 					}
 					getAccounts();	
 				});
 		}
 		
-		let counter = 0;
+		
 		function accountActionCount(accountsArr, callback){
 				async.eachLimit(accountsArr, CONFIG.limitAsync, (elem, cb) => {
 							let query = { $or: [
@@ -106,8 +111,11 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 									if(err.name === 'MongoNetworkError'){
 										console.log('MongoNetworkError ---- ', elem.name);
 										let query = { name: elem.name };
-										DBO.collection("smart_cache").updateOne(query, query, { upsert: true });
-										return;
+										DBO.collection("smart_cache").update(query, query, { upsert: true }, (err, result) => {
+												if (err){
+													console.error(err);
+												}
+										});
 									}
 									return cb();
 								}
@@ -117,9 +125,12 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 								}
 								console.log('Account -', elem.name, ' Actions -', result[0].sum);
 								if (result[0].sum > MAX_ACTIONS){
-									let query = { name: elem.name, actions: result[0].sum  };
-									DBO.collection("smart_cache").updateOne(query, query, { upsert: true });
-									return;
+									let query = { name: elem.name, actions: result[0].sum };
+									DBO.collection("smart_cache").update(query, query, { upsert: true }, (err, result) => {
+												if (err){
+													console.error(err);
+												}
+									});
 								}
 								cb();
 							});
