@@ -111,8 +111,7 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 									if(err.name === 'MongoNetworkError'){
 										console.log('MongoNetworkError ---- ', elem.name);
 										let query = { name: elem.name };
-										DBO.collection("smart_cache").update(query, query, { upsert: true }, cb);
-										return;
+										DBO.collection("smart_cache").update(query, query, { upsert: true });
 									}
 									return cb();
 								}
@@ -122,8 +121,7 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 								}
 								console.log('Account -', elem.name, ' Actions -', result[0].sum);
 								if (result[0].sum > MAX_ACTIONS){
-									DBO.collection("smart_cache").update({ name: elem.name }, { name: elem.name, actions: result[0].sum }, { upsert: true }, cb);
-									return;
+									DBO.collection("smart_cache").update({ name: elem.name }, { name: elem.name, actions: result[0].sum }, { upsert: true });
 								}
 								cb();
 							});
