@@ -26,7 +26,7 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
         let DBO = db.db(CONFIG.mongoDB);
 		
 		// Start cache daemon ===== 
-		getAccounts(DBO); 
+		getAccounts(); 
 
 		// clear slow operations
 		clearSlowOperations(); 
@@ -74,7 +74,7 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 				], (err, result) => {
 					if (err){
 						console.error('getAccounts callback error', err);
-						getAccounts();
+						return getAccounts();
 						//process.exit(1);
 					}
 					if (result === 'FINISH'){
