@@ -123,15 +123,6 @@ module.exports = (app, DB, swaggerSpec) => {
 	 */
 	app.get('/v1/history/get_actions/:account', getActions);
 
-	/**
-	 * @swagger
-	 *
-	 * /v1/history/get_actions_unique/cryptolions1:
-	 *   get:
-	 *     description: get_actions_unique
-	 *     produces:
-	 *       - application/json
-	 */
 	app.get('/v1/history/get_actions_unique/:account', getActionsDistinct);
 
 	/**
