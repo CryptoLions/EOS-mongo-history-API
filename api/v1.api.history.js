@@ -120,9 +120,26 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *         description: Enable counter if you need actionsTotal (?counter=1).
 	 *         required: false
 	 *         type: number
+	 *       - in: query
+	 *         name: filter
+	 *         description: Filter actions by action name.
+	 *         required: false
+	 *         type: string
 	 */
 	app.get('/v1/history/get_actions/:account', getActions);
 
+	/**
+	 * @swagger
+	 *
+	 * /v1/history/get_actions_delta/cryptolions1:
+	 *   get:
+	 *     description: get delta actions 
+	 *     produces:
+	 *       - application/json
+	 */
+	app.get('/v1/history/get_actions_delta/:account', getActionsDelta);
+
+	// Heavy mongo operation (disabled)
 	app.get('/v1/history/get_actions_unique/:account', getActionsDistinct);
 
 	/**
@@ -256,12 +273,24 @@ module.exports = (app, DB, swaggerSpec) => {
 	// ========= Custom functions
 	function getActions(req, res){
 	    // default values
-	    let skip = 0;
-	    let limit = 10;
-	    let sort = -1;
+	    let skip = (isNaN(Number(req.query.skip))) ? 0 : Number(req.query.skip);
+	    let limit = (isNaN(Number(req.query.limit))) ? 10 : Number(req.query.limit);
+	    let sort = (isNaN(Number(req.query.sort))) ? -1 : Number(req.query.sort);
+
+	    if (limit > MAX_ELEMENTS){
+	    	return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
+	    }
+	    if (skip < 0 || limit < 0){
+	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
+	    }
+	    if (sort !== -1 && sort !== 1){
+	    	return res.status(401).send(`Sort param must be 1 or -1`);
+	    }
+
 	    let accountName = String(req.params.account);
 	    let action = String(req.params.action);
 	    let counter = Number(req.query.counter);
+	    let actionsNamesArr = (typeof req.query.filter === "string") ? req.query.filter.split(","): null;
 	
 	    let query = { $or: [
 				{"act.account": accountName}, 
@@ -275,19 +304,11 @@ module.exports = (app, DB, swaggerSpec) => {
 	    if (action !== "undefined" && action !== "all"){
 	    	query["act.name"] = action;
 	    }
-	
-	    skip = (isNaN(Number(req.query.skip))) ? skip : Number(req.query.skip);
-	    limit = (isNaN(Number(req.query.limit))) ? limit : Number(req.query.limit);
-	    sort = (isNaN(Number(req.query.sort))) ? sort : Number(req.query.sort);
-	
-	    if (limit > MAX_ELEMENTS){
-	    	return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
-	    }
-	    if (skip < 0 || limit < 0){
-	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
-	    }
-	    if (sort !== -1 && sort !== 1){
-	    	return res.status(401).send(`Sort param must be 1 or -1`);
+	    if (actionsNamesArr){
+	    	query['act.name'] = { $in : [query['act.name']]};
+	    	actionsNamesArr.forEach(elem => {
+	    			query['act.name']['$in'].push(elem);
+	    	});
 	    }
 
 	    let parallelObject = {
@@ -350,7 +371,6 @@ module.exports = (app, DB, swaggerSpec) => {
 	    if (!isNaN(pos) && !isNaN(offset)){
 	    	sort = (pos < 0) ? -1: 1;
 	    	limit = Math.abs(offset + 1);
-	    	//skip =  (pos < 0) ? Math.abs(offset * ( pos * -1 - 1 )) : Math.abs(offset * ( pos - 1 ));
 	    	skip = (pos < 0) ? Math.abs(pos + 1) : Math.abs(pos - 1);
 	    }
 	
@@ -394,6 +414,43 @@ module.exports = (app, DB, swaggerSpec) => {
 					return res.status(500).end();
 			}
 			res.json(result)
+	    });
+	}
+
+	// ========= Get actions by multiple filet or actions names
+	function getActionsDelta(req, res){
+	    // default values
+	    let skip = (isNaN(Number(req.query.skip))) ? 0 : Number(req.query.skip);
+	    let limit = (isNaN(Number(req.query.limit))) ? 10 : Number(req.query.limit);
+	    let sort = (isNaN(Number(req.query.sort))) ? -1 : Number(req.query.sort);
+	    
+	    if (limit > MAX_ELEMENTS){
+	    	return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
+	    }
+	    if (skip < 0 || limit < 0){
+	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
+	    }
+	    if (sort !== -1 && sort !== 1){
+	    	return res.status(401).send(`Sort param must be 1 or -1`);
+	    }
+	    let accountName = String(req.params.account);
+
+	    let query = { $or: [
+				{"act.account": accountName}, 
+				{"act.data.receiver": accountName}, 
+				{"act.data.from": accountName}, 
+				{"act.data.to": accountName},
+				{"act.data.name": accountName},
+				{"act.data.voter": accountName},
+				{"act.authorization.actor": accountName}
+		], "account_ram_deltas.account": { $exists: true } };
+
+	    DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray((err, result) => {
+			if (err){
+					console.error(err);
+					return res.status(500).end();
+			}
+			res.json({ actions: result })
 	    });
 	}
 
