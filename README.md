@@ -56,3 +56,6 @@ v1.0.1:
 v1.0.2:
 - support of all requests from eosjs
 
+v1.0.3:
+- ?filter=buyram,... for get_actions/account_name request
+- get_actions_delta - actions that have field - account_ram_deltas.account
