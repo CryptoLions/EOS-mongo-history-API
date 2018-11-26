@@ -298,7 +298,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    let actionsNamesArr = (typeof req.query.filter === "string") ? req.query.filter.split(","): null;
 
 	    if (latencySkip[accountName] > +new Date()){
-	    	return res.status(500).send("Large skip for account, please wait until previous request will end! Max skip " + MAX_SKIP);
+	    	return res.status(500).send("Large skip for account, please wait until previous request will end! Max skip per request " + MAX_SKIP);
 	    }
 		if (!latencySkip[accountName] && skip > MAX_SKIP){
 			latencySkip[accountName] = +new Date() + 60000;
@@ -325,7 +325,8 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 
 	    let parallelObject = {
 		   actions: (callback) => {
-				DB.collection("action_traces").find(query).sort({ "_id": 1 }).project({ "_id": 1 }).skip(skip).limit(1).toArray((err, result) => {
+		   		DB.collection("action_traces").find(query).sort({ "_id": 1 }).skip(skip).limit(limit).toArray(callback);
+				/*DB.collection("action_traces").find(query).sort({ "_id": 1 }).project({ "_id": 1 }).skip(skip).limit(1).toArray((err, result) => {
 						if (err){
 							return callback(err);
 						}
@@ -338,7 +339,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 							console.log(query, "skip=", skip);
 						}
            				DB.collection("action_traces").find(query).sort({"_id": sort}).limit(limit).toArray(callback);
-				});
+				});*/
            }
 	    };
 
@@ -413,7 +414,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    }
 
 	   if (latencySkip[accountName] > +new Date()){
-	    	return res.status(500).send("Large skip for account, please wait until previous request will end! Max skip " + MAX_SKIP);
+	    	return res.status(500).send("Large skip for account, please wait until previous request will end! Max skip per request " + MAX_SKIP);
 	    }
 		if (!latencySkip[accountName] && skip > MAX_SKIP){
 			latencySkip[accountName] = +new Date() + 60000;
@@ -421,7 +422,8 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 
 	    let parallelObject = {
 		   actions: (callback) => {
-           		DB.collection("action_traces").find(query).sort({ "_id": 1 }).project({ "_id": 1 }).skip(skip).limit(1).toArray((err, result) => {
+		   		DB.collection("action_traces").find(query).sort({ "_id": 1 }).skip(skip).limit(limit).toArray(callback);
+           		/*DB.collection("action_traces").find(query).sort({ "_id": 1 }).project({ "_id": 1 }).skip(skip).limit(1).toArray((err, result) => {
 						if (err){
 							return callback(err);
 						}
@@ -434,7 +436,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 							console.log(query, "skip=", skip);
 						}
            				DB.collection("action_traces").find(query).sort({"_id": sort}).limit(limit).toArray(callback);
-				});
+				});*/
            }
 	    };
 
