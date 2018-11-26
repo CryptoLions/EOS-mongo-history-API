@@ -270,6 +270,8 @@ module.exports = (app, DB, swaggerSpec) => {
     	request.get(`${config.chainUrl}${req.originalUrl}`).pipe(res);
     });
 
+    app.get('/v1/history/get_actions_transactions', getActionsTransactions);
+
 	// ========= Custom functions
 	function getActions(req, res){
 	    // default values
@@ -588,22 +590,24 @@ module.exports = (app, DB, swaggerSpec) => {
 	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
 	    }
 
-		DB.collection("accounts").find(query).skip(skip).limit(limit).toArray((err, result) => {
-				if (err){
+	    let queryObject = {
+	    	accounts: (callback) => {
+           		DB.collection("accounts").find(query).skip(skip).limit(limit).toArray(callback);
+            }
+	    };
+
+	    if (counterAccounts){
+	    	queryObject['allEosAccounts'] = (callback) => {
+	       		DB.collection("accounts").estimatedDocumentCount(callback);
+	        };
+	    }
+
+	    async.parallel(queryObject, (err, result) => {
+			if (err){
 					console.error(err);
 					return res.status(500).end();
-				};
-				if (counterAccounts){
-					DB.collection("accounts").count((err, accs) => {
-									if (err){
-										console.error(err);
-										return res.status(500).end();
-									};
-									res.json({ allEosAccounts: accs, accounts: result });
-					});
-				} else {
-					res.json({ accounts: result });
-				}
+			}
+			res.json(result)
 	    });
 	}
 
@@ -632,10 +636,27 @@ module.exports = (app, DB, swaggerSpec) => {
 
 	    async.parallel({
 	       votesCounter: (callback) => {
-	       		DB.collection("action_traces").find(query).count(callback);
+	       		DB.collection("action_traces").countDocuments(query, callback);
 	       },
            voters: (callback) => {
            		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
+           }
+	    }, (err, result) => {
+			if (err){
+					console.error(err);
+					return res.status(500).end();
+			}
+			res.json(result)
+	    });
+	}
+
+	function getActionsTransactions(req, res){
+		async.parallel({
+	       actions: (callback) => {
+	       		DB.collection("action_traces").estimatedDocumentCount(callback);
+	       },
+           transactions: (callback) => {
+           		DB.collection("transaction_traces").estimatedDocumentCount(callback);
            }
 	    }, (err, result) => {
 			if (err){
