@@ -15,9 +15,10 @@
 ###############################################################################  */
 require('appmetrics-dash').monitor();
 const MongoClient 	= require('mongodb').MongoClient;
+const ObjectId      = require('mongodb').ObjectID;
 const swaggerJSDoc 	= require('swagger-jsdoc');
-const bodyparser 	= require('body-parser');
-const CONFIG		= require('./config.js');
+const bodyparser 	  = require('body-parser');
+const CONFIG		    = require('./config.js');
 
 const MONGO_OPTIONS = {
     socketTimeoutMS: 60000,
@@ -77,7 +78,7 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 		}
         console.log("=== Database Connected!");
         let dbo = db.db(CONFIG.mongoDB);
-		require('./api/v1.api.history')(app, dbo, swaggerSpec);        
+		require('./api/v1.api.history')(app, dbo, swaggerSpec, ObjectId);        
 });
 
 const http 	= require('http').Server(app);
