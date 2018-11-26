@@ -325,7 +325,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 
 	    let parallelObject = {
 		   actions: (callback) => {
-		   		DB.collection("action_traces").find(query).sort({ "_id": 1 }).skip(skip).limit(limit).toArray(callback);
+		   		DB.collection("action_traces").find(query).sort({ "_id": sort }).skip(skip).limit(limit).toArray(callback);
 				/*DB.collection("action_traces").find(query).sort({ "_id": 1 }).project({ "_id": 1 }).skip(skip).limit(1).toArray((err, result) => {
 						if (err){
 							return callback(err);
@@ -422,7 +422,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 
 	    let parallelObject = {
 		   actions: (callback) => {
-		   		DB.collection("action_traces").find(query).sort({ "_id": 1 }).skip(skip).limit(limit).toArray(callback);
+		   		DB.collection("action_traces").find(query).sort({ "_id": sort }).skip(skip).limit(limit).toArray(callback);
            		/*DB.collection("action_traces").find(query).sort({ "_id": 1 }).project({ "_id": 1 }).skip(skip).limit(1).toArray((err, result) => {
 						if (err){
 							return callback(err);
