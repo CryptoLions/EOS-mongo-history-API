@@ -5,7 +5,7 @@ const async 		= require('async');
 const request 		= require('request');
 const config 		= require('../config');
 
-module.exports = (app, DB, swaggerSpec) => {
+module.exports = (app, DB, swaggerSpec, ObjectId) => {
 
 	app.get('/api-docs.json', (req, res) => {
 	  res.setHeader('Content-Type', 'application/json');
@@ -315,7 +315,20 @@ module.exports = (app, DB, swaggerSpec) => {
 
 	    let parallelObject = {
 		   actions: (callback) => {
-           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
+				DB.collection("action_traces").find(query).sort({ "_id": 1 }).project({ "_id": 1 }).skip(skip).limit(1).toArray((err, result) => {
+						if (err){
+							return callback(err);
+						}
+						if (!result || !result[0] || !result[0]._id){
+							return callback(null, []);
+						}
+						let start_id = result[0]._id;
+						query["_id"] = { $gte: new ObjectId(start_id) };
+						if (skip > 1000000){
+							console.log(query);
+						}
+           				DB.collection("action_traces").find(query).sort({"_id": sort}).limit(limit).toArray(callback);
+				});
            }
 	    };
 
