@@ -5,6 +5,8 @@ const async 		= require('async');
 const request 		= require('request');
 const config 		= require('../config');
 
+const MAX_SKIP 		= 1000000;
+
 module.exports = (app, DB, swaggerSpec, ObjectId) => {
 
 	app.get('/api-docs.json', (req, res) => {
@@ -273,6 +275,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
     app.get('/v1/history/get_actions_transactions', getActionsTransactions);
 
 	// ========= Custom functions
+	let latencySkip = {};
 	function getActions(req, res){
 	    // default values
 	    let skip = (isNaN(Number(req.query.skip))) ? 0 : Number(req.query.skip);
@@ -293,7 +296,14 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    let action = String(req.params.action);
 	    let counter = Number(req.query.counter);
 	    let actionsNamesArr = (typeof req.query.filter === "string") ? req.query.filter.split(","): null;
-	
+
+	    if (latencySkip[accountName] > +new Date()){
+	    	return res.status(500).send("Large skip for account, please wait until previous request will end! Max skip " + MAX_SKIP);
+	    }
+		if (!latencySkip[accountName] && skip > MAX_SKIP){
+			latencySkip[accountName] = +new Date() + 60000;
+	    }
+
 	    let query = { $or: [
 				{"act.account": accountName}, 
 				{"act.data.receiver": accountName}, 
@@ -325,7 +335,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 						let start_id = result[0]._id;
 						query["_id"] = { $gte: new ObjectId(start_id) };
 						if (skip > 1000000){
-							console.log(query);
+							console.log(query, "skip=", skip);
 						}
            				DB.collection("action_traces").find(query).sort({"_id": sort}).limit(limit).toArray(callback);
 				});
@@ -354,6 +364,9 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 			if (err){
 					console.error(err);
 					return res.status(500).end();
+			}
+			if (latencySkip[accountName] && skip > MAX_SKIP){
+				delete latencySkip[accountName];
 			}
 			res.json(result)
 	    });
@@ -399,9 +412,29 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    	return res.status(401).send(`Sort param must be 1 or -1`);
 	    }
 
+	   if (latencySkip[accountName] > +new Date()){
+	    	return res.status(500).send("Large skip for account, please wait until previous request will end! Max skip " + MAX_SKIP);
+	    }
+		if (!latencySkip[accountName] && skip > MAX_SKIP){
+			latencySkip[accountName] = +new Date() + 60000;
+	    }
+
 	    let parallelObject = {
 		   actions: (callback) => {
-           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
+           		DB.collection("action_traces").find(query).sort({ "_id": 1 }).project({ "_id": 1 }).skip(skip).limit(1).toArray((err, result) => {
+						if (err){
+							return callback(err);
+						}
+						if (!result || !result[0] || !result[0]._id){
+							return callback(null, []);
+						}
+						let start_id = result[0]._id;
+						query["_id"] = { $gte: new ObjectId(start_id) };
+						if (skip > 1000000){
+							console.log(query, "skip=", skip);
+						}
+           				DB.collection("action_traces").find(query).sort({"_id": sort}).limit(limit).toArray(callback);
+				});
            }
 	    };
 
@@ -427,6 +460,9 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 			if (err){
 					console.error(err);
 					return res.status(500).end();
+			}
+			if (latencySkip[accountName] && skip > MAX_SKIP){
+				delete latencySkip[accountName];
 			}
 			res.json(result)
 	    });
