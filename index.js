@@ -20,6 +20,9 @@ const swaggerJSDoc 	= require('swagger-jsdoc');
 const bodyparser 	  = require('body-parser');
 const CONFIG		    = require('./config.js');
 
+const swStats = require('swagger-stats');
+const apiSpec = require('./swagger.json');
+
 const MONGO_OPTIONS = {
     socketTimeoutMS: 60000,
     keepAlive: true,
@@ -39,6 +42,14 @@ const swaggerSpec = swaggerJSDoc({
 
 const express 		= require('express');
 const app 			  = express();
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
+app.use(swStats.getMiddleware({ uriPath: "/metrics", swaggerSpec: apiSpec }));
 
 // parse requests from eosjs (v16.0.0 - 16.0.9)
 app.use((req, res, next) => {
@@ -60,11 +71,6 @@ app.use((req, res, next) => {
 });
 app.use(bodyparser.json());
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
 app.use('/', express.static(__dirname + '/html'));
 
 
