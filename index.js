@@ -19,9 +19,7 @@ const ObjectId      = require('mongodb').ObjectID;
 const swaggerJSDoc 	= require('swagger-jsdoc');
 const bodyparser 	  = require('body-parser');
 const CONFIG		    = require('./config.js');
-
-const swStats = require('swagger-stats');
-const apiSpec = require('./swagger.json');
+const swStats       = require('swagger-stats-lions');
 
 const MONGO_OPTIONS = {
     socketTimeoutMS: 60000,
@@ -29,6 +27,10 @@ const MONGO_OPTIONS = {
     reconnectTries: 30000,
     useNewUrlParser: true
 };
+
+process.on('uncaughtException', (err) => {
+    console.error(`======= UncaughtException API Server :  ${err}`);
+});
 
 const swaggerSpec = swaggerJSDoc({
   definition: {
@@ -49,7 +51,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(swStats.getMiddleware({ uriPath: "/metrics", swaggerSpec: apiSpec }));
+app.use(swStats.getMiddleware({
+            saveRequests: CONFIG.saveRequestsMetrics, 
+            uriPath: "/metrics",
+            name : "History nodes API",
+            swaggerSpec: {}
+        }));
 
 // parse requests from eosjs (v16.0.0 - 16.0.9)
 app.use((req, res, next) => {
@@ -72,11 +79,6 @@ app.use((req, res, next) => {
 app.use(bodyparser.json());
 
 app.use('/', express.static(__dirname + '/html'));
-
-
-process.on('uncaughtException', (err) => {
-    console.error(`======= UncaughtException API Server :  ${err}`);
-});
 
 MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 		if (err){
