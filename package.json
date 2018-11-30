@@ -21,6 +21,6 @@
     "request": "^2.88.0",
     "swagger-jsdoc": "^3.2.3",
     "swagger-stats": "^0.95.6",
-    "swagger-stats-lions": "0.0.1"
+    "swagger-stats-lions": "^0.0.2"
   }
 }
