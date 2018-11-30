@@ -98,7 +98,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	 *
 	 * /v1/history/get_actions/cryptolions1:
 	 *   get:
-	 *     description: Get Account actions
+	 *     description: get_actions
 	 *     produces:
 	 *       - application/json
 	 *     parameters:
@@ -135,7 +135,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	 *
 	 * /v1/history/get_actions_delta/cryptolions1:
 	 *   get:
-	 *     description: get delta actions 
+	 *     description: get_actions_delta
 	 *     produces:
 	 *       - application/json
 	 */
@@ -149,7 +149,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	 *
 	 * /v1/history/get_actions/cryptolions1/sethash:
 	 *   get:
-	 *     description: Get Account actions by action name
+	 *     description: get_actions by action name
 	 *     produces:
 	 *       - application/json
 	 *     parameters:
@@ -193,7 +193,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	 *
 	 * /v1/history/get_transaction/${id}:
 	 *   get:
-	 *     description: Get Transaction by id
+	 *     description: get_transaction
 	 *     produces:
 	 *       - application/json
 	 */
@@ -221,7 +221,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	 *
 	 * /v1/history/get_controlled_accounts/${controlling_account}:
 	 *   get:
-	 *     description: Get controlled accounts
+	 *     description: get_controlled_accounts
 	 *     produces:
 	 *       - application/json
 	 */
@@ -249,7 +249,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	 *
 	 * /v1/history/get_key_accounts/${public_key}:
 	 *   get:
-	 *     description: Get key accounts
+	 *     description: get_key_accounts
 	 *     produces:
 	 *       - application/json
 	 */
@@ -399,8 +399,10 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    let offset = Number(req.body.offset);
 	    if (!isNaN(pos) && !isNaN(offset)){
 	    	sort = (pos < 0) ? -1: 1;
-	    	limit = Math.abs(offset + 1);
-	    	skip = (pos < 0) ? Math.abs(pos + 1) : Math.abs(pos - 1);
+	    	limit = Math.abs(offset);
+	    	skip = Math.abs(pos);
+	    	//limit = Math.abs(offset + 1);
+	    	//skip = (pos < 0) ? Math.abs(pos + 1) : Math.abs(pos - 1);
 	    }
 	
 	    if (limit > MAX_ELEMENTS){

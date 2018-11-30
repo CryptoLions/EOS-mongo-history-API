@@ -9,7 +9,6 @@
   "author": "CryptoLions.io",
   "license": "ISC",
   "dependencies": {
-    "appmetrics-dash": "^4.0.0",
     "async": "^2.6.1",
     "body-parser": "^1.18.3",
     "eosio-mongodb-queries": "^0.9.0",
@@ -18,6 +17,7 @@
     "mongodb": "^3.1.6",
     "node-gyp": "^3.8.0",
     "request": "^2.88.0",
-    "swagger-jsdoc": "^3.2.3"
+    "swagger-jsdoc": "^3.2.3",
+    "swagger-stats-lions": "^0.0.4"
   }
 }
