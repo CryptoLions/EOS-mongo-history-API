@@ -53,6 +53,7 @@ app.use((req, res, next) => {
 
 app.use(swStats.getMiddleware({
             saveRequests: CONFIG.saveRequestsMetrics, 
+            timelineBucketDuration: 2000,
             uriPath: "/metrics",
             name : "History nodes API",
             swaggerSpec: {}
