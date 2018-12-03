@@ -274,6 +274,24 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 
     app.get('/v1/history/get_actions_transactions', getActionsTransactions);
 
+    app.get('/health', (req, res) => {
+    		DB.collection("action_traces").find({ $or: [
+				{"act.account": "cryptolions1"}, 
+				{"act.data.receiver": "cryptolions1"}, 
+				{"act.data.from": "cryptolions1"}, 
+				{"act.data.to": "cryptolions1"},
+				{"act.data.name": "cryptolions1"},
+				{"act.data.voter": "cryptolions1"},
+				{"act.authorization.actor": "cryptolions1"}
+			]}).limit(1).toArray((err, result) => {
+				if (err){
+					console.log(err);
+					return res.status(403).end();
+				}
+				res.status(200).end();
+			});
+    });
+
 	// ========= Custom functions
 	let latencySkip = {};
 	function getActions(req, res){

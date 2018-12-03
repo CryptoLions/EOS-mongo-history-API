@@ -20,6 +20,7 @@ const swaggerJSDoc 	= require('swagger-jsdoc');
 const bodyparser 	  = require('body-parser');
 const CONFIG		    = require('./config.js');
 const swStats       = require('swagger-stats-lions');
+const cors          = require('cors');
 
 const MONGO_OPTIONS = {
     socketTimeoutMS: 60000,
@@ -45,12 +46,7 @@ const swaggerSpec = swaggerJSDoc({
 const express 		= require('express');
 const app 			  = express();
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
-
+app.use(cors());
 app.use(swStats.getMiddleware({
             saveRequests: CONFIG.saveRequestsMetrics, 
             timelineBucketDuration: 2000,
