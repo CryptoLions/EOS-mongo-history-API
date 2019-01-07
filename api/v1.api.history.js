@@ -303,8 +303,8 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    if (limit > MAX_ELEMENTS){
 	    	return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
 	    }
-	    if (skip < 0 || limit < 0){
-	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
+	    if (skip < 0 || limit <= 0){
+	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit <= 0`);
 	    }
 	    if (sort !== -1 && sort !== 1){
 	    	return res.status(401).send(`Sort param must be 1 or -1`);
@@ -426,8 +426,8 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    if (limit > MAX_ELEMENTS){
 	    	return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
 	    }
-	    if (skip < 0 || limit < 0){
-	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
+	    if (skip < 0 || limit <= 0){
+	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit <= 0`);
 	    }
 	    if (sort !== -1 && sort !== 1){
 	    	return res.status(401).send(`Sort param must be 1 or -1`);
