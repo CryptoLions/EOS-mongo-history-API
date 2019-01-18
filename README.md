@@ -35,6 +35,7 @@ mongo EOS --eval 'db.action_traces.createIndex({"act.data.to": 1, "createdAt":1}
 mongo EOS --eval 'db.action_traces.createIndex({"act.data.name": 1, "createdAt":1},{background: true, sparse: true})'  
 mongo EOS --eval 'db.action_traces.createIndex({"act.data.voter": 1, "createdAt":1},{background: true, sparse: true})'  
 mongo EOS --eval 'db.action_traces.createIndex({"act.authorization.actor": 1, "createdAt":1},{background: true, sparse: true})'  
+mongo EOS --eval 'db.action_traces.createIndex({"account_ram_deltas.account": 1, "createdAt":1},{background: true, sparse: true})'  
 ```
 ## Other Indexes  
 ```
