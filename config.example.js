@@ -3,5 +3,6 @@ module.exports = {
     mongoURL: "mongodb://localhost:27017/EOS",
     mongoDB: "EOS",
     chainUrl: "https://bp.cryptolions.io",
-    saveRequestsMetrics: true
+    saveRequestsMetrics: true,
+    maxSkip: 1000000
 }

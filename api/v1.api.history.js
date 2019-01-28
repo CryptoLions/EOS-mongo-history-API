@@ -5,7 +5,7 @@ const async 		= require('async');
 const request 		= require('request');
 const config 		= require('../config');
 
-const MAX_SKIP 		= 1000000;
+const MAX_SKIP 		= config.maxSkip;
 
 module.exports = (app, DB, swaggerSpec, ObjectId) => {
 
@@ -344,37 +344,11 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    let parallelObject = {
 		   actions: (callback) => {
 		   		DB.collection("action_traces").find(query).sort({ "createdAt": sort }).skip(skip).limit(limit).toArray(callback);
-				/*DB.collection("action_traces").find(query).sort({ "_id": 1 }).project({ "_id": 1 }).skip(skip).limit(1).toArray((err, result) => {
-						if (err){
-							return callback(err);
-						}
-						if (!result || !result[0] || !result[0]._id){
-							return callback(null, []);
-						}
-						let start_id = result[0]._id;
-						query["_id"] = { $gte: new ObjectId(start_id) };
-						if (skip > 1000000){
-							console.log(query, "skip=", skip);
-						}
-           				DB.collection("action_traces").find(query).sort({"_id": sort}).limit(limit).toArray(callback);
-				});*/
            }
 	    };
 
 	    if (counter === 1){
 	    	parallelObject["actionsTotal"] = (callback) => {
-	       		/*DB.collection("action_traces").aggregate([
-				   { $match: query },
-				   { $group: { _id: null, sum: { $sum: 1 } } } 
-				]).toArray((err, result) => {
-					if (err){
-						return callback(err);
-					}
-					if (!result || !result[0] || !result[0].sum){
-						return callback('counter error')
-					}
-					callback(null, result[0].sum);
-				});*/
 				callback(null, 'Under construction');
 	       }
 	    }
@@ -419,8 +393,6 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    	sort = (pos < 0) ? -1: 1;
 	    	limit = Math.abs(offset);
 	    	skip = Math.abs(pos);
-	    	//limit = Math.abs(offset + 1);
-	    	//skip = (pos < 0) ? Math.abs(pos + 1) : Math.abs(pos - 1);
 	    }
 	
 	    if (limit > MAX_ELEMENTS){
@@ -443,37 +415,11 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    let parallelObject = {
 		   actions: (callback) => {
 		   		DB.collection("action_traces").find(query).sort({ "createdAt": sort }).skip(skip).limit(limit).toArray(callback);
-           		/*DB.collection("action_traces").find(query).sort({ "_id": 1 }).project({ "_id": 1 }).skip(skip).limit(1).toArray((err, result) => {
-						if (err){
-							return callback(err);
-						}
-						if (!result || !result[0] || !result[0]._id){
-							return callback(null, []);
-						}
-						let start_id = result[0]._id;
-						query["_id"] = { $gte: new ObjectId(start_id) };
-						if (skip > 1000000){
-							console.log(query, "skip=", skip);
-						}
-           				DB.collection("action_traces").find(query).sort({"_id": sort}).limit(limit).toArray(callback);
-				});*/
            }
 	    };
 
 	    if (counter === 1){
 	    	parallelObject["actionsTotal"] = (callback) => {
-	       		/*DB.collection("action_traces").aggregate([
-				   { $match: query },
-				   { $group: { _id: null, sum: { $sum: 1 } } } 
-				]).toArray((err, result) => {
-					if (err){
-						return callback(err);
-					}
-					if (!result || !result[0] || !result[0].sum){
-						return callback('counter error')
-					}
-					callback(null, result[0].sum);
-				});*/
 				callback(null, 'Under construction');
 	       }
 	    }
@@ -518,7 +464,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 				{"act.authorization.actor": accountName}
 		], "account_ram_deltas.account": { $exists: true } };
 
-	    DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray((err, result) => {
+	    DB.collection("action_traces").find(query).sort({"createdAt": sort}).skip(skip).limit(limit).toArray((err, result) => {
 			if (err){
 					console.error(err);
 					return res.status(500).end();
@@ -710,7 +656,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	       		DB.collection("action_traces").countDocuments(query, callback);
 	       },
            voters: (callback) => {
-           		DB.collection("action_traces").find(query).sort({"_id": sort}).skip(skip).limit(limit).toArray(callback);
+           		DB.collection("action_traces").find(query).sort({"createdAt": sort}).skip(skip).limit(limit).toArray(callback);
            }
 	    }, (err, result) => {
 			if (err){
