@@ -5,7 +5,7 @@ const async 		= require('async');
 const request 		= require('request');
 const config 		= require('../config');
 
-const MAX_SKIP 		= 1000000;
+const MAX_SKIP 		= config.maxSkip;
 
 module.exports = (app, DB, swaggerSpec, ObjectId) => {
 
