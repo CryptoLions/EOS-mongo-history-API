@@ -81,8 +81,8 @@ MongoClient.connect( CONFIG.mongoURL, MONGO_OPTIONS, (err, db) => {
 		if (err){
 			return console.error("Database error !!!", err);
 		}
-        console.log("=== Database Connected!");
-        let dbo = db.db(CONFIG.mongoDB);
+    console.log("=== Database Connected!");
+    let dbo = db.db(CONFIG.mongoDB);
 		require('./api/v1.api.history')(app, dbo, swaggerSpec, ObjectId);        
 });
 

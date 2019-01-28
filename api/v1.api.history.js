@@ -684,6 +684,23 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    });
 	}
 
+	// clear slow mongo operations	 
+	function clearSlowOperations(){
+			DB.admin().command({ currentOp: 1, microsecs_running: { $gte: 60000 }, "command.find": { $exists: true } }, (err, result) => {
+				if (err){
+					console.error(err);
+					return setTimeout(clearSlowOperations, 10000);
+				}
+				if(result && result.inprog && result.inprog.length){
+					result.inprog.forEach((elem) => {
+							console.log('Kill operation: ', elem.opid, elem.command.filter, 'skip', elem.command.skip);
+							DB.admin().command({ killOp: 1, op: elem.opid });
+					});
+				}
+				setTimeout(clearSlowOperations, 10000);
+			});
+	} 
+	clearSlowOperations();
 	//========= end Custom Functions
 }
 
