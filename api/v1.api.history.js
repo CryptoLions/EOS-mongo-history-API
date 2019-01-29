@@ -686,10 +686,10 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 
 	// clear slow mongo operations	 
 	function clearSlowOperations(){
-			DB.admin().command({ currentOp: 1, microsecs_running: { $gte: 60000 }, "command.find": { $exists: true } }, (err, result) => {
+			DB.admin().command({ currentOp: 1, microsecs_running: { $gte: config.maxTimeForOperetion }, "command.find": { $exists: true } }, (err, result) => {
 				if (err){
 					console.error(err);
-					return setTimeout(clearSlowOperations, 10000);
+					return setTimeout(clearSlowOperations, config.clearOperationsTimer);
 				}
 				if(result && result.inprog && result.inprog.length){
 					result.inprog.forEach((elem) => {
@@ -697,7 +697,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 							DB.admin().command({ killOp: 1, op: elem.opid });
 					});
 				}
-				setTimeout(clearSlowOperations, 10000);
+				setTimeout(clearSlowOperations, config.clearOperationsTimer);
 			});
 	} 
 	clearSlowOperations();
