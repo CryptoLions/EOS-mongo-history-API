@@ -559,14 +559,30 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 		 let key = String(req.body.public_key);
 		 if (key === "undefined"){
 		 	return res.status(401).send("Wrong transactions ID!");
-		 } 
-		 let query = { public_key: key };
-		 DB.collection("pub_keys").find(query).toArray((err, result) => {
+		 }
+		 let query = [
+			 {'$match': {
+				 public_key: key
+			 }},
+			 {'$group': {
+				 '_id': '$public_key',
+				 'account_names': { '$addToSet': '$account' }
+			 }},
+			 {'$project': {
+				 '_id': 0,
+				 'account_names': 1
+			 }}
+		 ];
+		 DB.collection("pub_keys").aggregate(query).toArray((err, result) => {
 				if (err){
 					console.error(err);
 					return res.status(500).end();
 				};
-				res.json(result);
+				if (result.length > 0) {
+					res.json(result[0]);
+				} else {
+					res.json({"account_names": []});
+				}
 	    });
 	}
 
