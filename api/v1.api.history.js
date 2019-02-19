@@ -309,18 +309,21 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    if (sort !== -1 && sort !== 1){
 	    	return res.status(401).send(`Sort param must be 1 or -1`);
 	    }
+	    if (skip > MAX_SKIP){
+	    	return res.status(500).send("Large skip for account! Max skip per request " + MAX_SKIP);
+	    }
 
 	    let accountName = String(req.params.account);
 	    let action = String(req.params.action);
 	    let counter = Number(req.query.counter);
 	    let actionsNamesArr = (typeof req.query.filter === "string") ? req.query.filter.split(","): null;
 
-	    if (latencySkip[accountName] > +new Date()){
+	    /*if (latencySkip[accountName] > +new Date()){
 	    	return res.status(500).send("Large skip for account, please wait until previous request will end! Max skip per request " + MAX_SKIP);
 	    }
 		if (!latencySkip[accountName] && skip > MAX_SKIP){
 			latencySkip[accountName] = +new Date() + 60000;
-	    }
+	    }*/
 
 	    let query = { $or: [
 				{"act.account": accountName}, 
@@ -358,9 +361,9 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 					console.error(err);
 					return res.status(500).end();
 			}
-			if (latencySkip[accountName] && skip > MAX_SKIP){
+			/*if (latencySkip[accountName] && skip > MAX_SKIP){
 				delete latencySkip[accountName];
-			}
+			}*/
 			res.json(result)
 	    });
 	}
@@ -373,7 +376,7 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    let accountName = String(req.body.account_name);
 	    let action = String(req.body.action_name);
 	    let counter = Number(req.body.counter);
-	
+
 	    let query = { $or: [
 				{"act.account": accountName}, 
 				{"act.data.receiver": accountName}, 
@@ -404,13 +407,16 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 	    if (sort !== -1 && sort !== 1){
 	    	return res.status(401).send(`Sort param must be 1 or -1`);
 	    }
+	    if (skip > MAX_SKIP){
+	    	return res.status(500).send("Large skip for account! Max skip per request " + MAX_SKIP);
+	    }
 
-	   if (latencySkip[accountName] > +new Date()){
+	    /*if (latencySkip[accountName] > +new Date()){
 	    	return res.status(500).send("Large skip for account, please wait until previous request will end! Max skip per request " + MAX_SKIP);
 	    }
 		if (!latencySkip[accountName] && skip > MAX_SKIP){
 			latencySkip[accountName] = +new Date() + 60000;
-	    }
+	    }*/
 
 	    let parallelObject = {
 		   actions: (callback) => {
@@ -429,9 +435,9 @@ module.exports = (app, DB, swaggerSpec, ObjectId) => {
 					console.error(err);
 					return res.status(500).end();
 			}
-			if (latencySkip[accountName] && skip > MAX_SKIP){
+			/*if (latencySkip[accountName] && skip > MAX_SKIP){
 				delete latencySkip[accountName];
-			}
+			}*/
 			res.json(result)
 	    });
 	}
