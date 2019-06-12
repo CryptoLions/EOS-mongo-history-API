@@ -1,4 +1,6 @@
-# API Documentation https://history.cryptolions.io
+# mongo_history_plugin has been deprecated !!! 
+
+## API Documentation https://history.cryptolions.io
 
 ## API url - https://history.cryptolions.io
 
